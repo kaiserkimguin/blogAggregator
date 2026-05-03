@@ -2,27 +2,44 @@ package main
 
 import(
 	"fmt"
-	"encoding/json"
+	"os"
 	"github.com/kaiserkimguin/blogAggregator/internal/config"
 )
 
 func main()  {
-	// read the config file
+	// initialize a commands, and a state struct to work with 
+	cmds := commands{
+		cmdMap: make(map[string]func(*state, command)error),
+	}
+	var s state 
+	// read the config file and store it in s
 	cfg, err := config.Read()
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
 	}
-	// set the username to current user 
-	err = cfg.SetUser("kaiserkimguin")
-	// read the config file again
-	cfg, err = config.Read()
+	s.cfg = &cfg
+	// register all needed functions
+	cmds.register("login", handlerLogin)
+	// detect all arguments provided by the caler and construct
+	// new command struct with it.
+	args := os.Args	
+	if len(args) < 2 {
+		fmt.Println("not enough arguments provided")
+		os.Exit(1)
+	}
+	cmd := command{
+		name: 	args[1],
+		args: args[2:],
+	}
+	err = cmds.run(&s, cmd)
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
 	}
-	// Marshal the cfg for better readability, then print it.
-	data, err := json.MarshalIndent(cfg, "", " ")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(string(data))
+	os.Exit(0)
+}
+
+type state struct {
+	cfg			*config.ConfigJson
 }
