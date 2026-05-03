@@ -1,2 +1,6 @@
 # Go.mod and executables
 go.mod
+blogAggregator
+
+# direnv Local environment variables
+.envrc
