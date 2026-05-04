@@ -4,3 +4,6 @@ blogAggregator
 
 # direnv Local environment variables
 .envrc
+
+# personal notes
+zNotes.md
