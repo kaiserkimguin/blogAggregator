@@ -21,3 +21,11 @@ func handlerLogin (s *state, cmd command) error {
  fmt.Printf("current user is now: %s", cmd.args[0])
  return nil
 }
+
+func handlerRegister (s *state, cmd command) error {
+ // check wether the correct number of args are provided
+ if len(cmd.args) != 1 {
+	 return errors.New("login expects exactly 1 argument")
+ }
+
+}

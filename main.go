@@ -4,6 +4,7 @@ import(
 	"fmt"
 	"os"
 	"github.com/kaiserkimguin/blogAggregator/internal/config"
+ _ "github.com/lib/pq"
 )
 
 func main()  {
@@ -19,6 +20,11 @@ func main()  {
 		os.Exit(1)
 	}
 	s.cfg = &cfg
+	// load the dbURL from State and connect into the database
+	db, err := sql.Open("postgres", dbURL)
+	// store the dbQueries in the state struct.
+	dbQueries := database.New(db)
+	s.db = &dbQueries
 	// register all needed functions
 	cmds.register("login", handlerLogin)
 	// detect all arguments provided by the caler and construct
@@ -41,5 +47,6 @@ func main()  {
 }
 
 type state struct {
+	db 			*database.Queries
 	cfg			*config.ConfigJson
 }
