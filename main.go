@@ -3,7 +3,9 @@ package main
 import(
 	"fmt"
 	"os"
+	"database/sql"
 	"github.com/kaiserkimguin/blogAggregator/internal/config"
+	"github.com/kaiserkimguin/blogAggregator/internal/database"
  _ "github.com/lib/pq"
 )
 
@@ -21,12 +23,14 @@ func main()  {
 	}
 	s.cfg = &cfg
 	// load the dbURL from State and connect into the database
-	db, err := sql.Open("postgres", dbURL)
+	db, err := sql.Open("postgres", s.cfg.DbURL)
 	// store the dbQueries in the state struct.
 	dbQueries := database.New(db)
-	s.db = &dbQueries
+	s.db = dbQueries
 	// register all needed functions
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
+	cmds.register("reset", handlerReset)
 	// detect all arguments provided by the caler and construct
 	// new command struct with it.
 	args := os.Args	
