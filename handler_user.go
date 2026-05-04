@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func handlerLogin (s *state, cmd command) error {
+func handlerLogin(s *state, cmd command) error {
  // check wether the correct number of args are provided
  if len(cmd.args) != 1 {
 	 return errors.New("login expects exactly 1 argument")
@@ -33,7 +33,7 @@ func handlerLogin (s *state, cmd command) error {
  return nil
 }
 
-func handlerRegister (s *state, cmd command) error {
+func handlerRegister(s *state, cmd command) error {
  // check wether the correct number of args are provided
  if len(cmd.args) != 1 {
 	 return errors.New("register expects exactly 1 argument")
@@ -58,4 +58,28 @@ if err = s.cfg.SetUser(cmd.args[0]); err != nil {
 // Print success message and return absence of error.
 fmt.Println("user successfully registered")
 return nil
+}
+
+func handlerUsers(s *state, cmd command) error {
+ // check wether the correct number of args are provided
+ if len(cmd.args) != 0 {
+	 return errors.New("no arguments expected")
+ }
+ // get all Users using states db.GetUsers method
+ users, err := s.db.GetUsers(context.Background())
+ if err != nil {
+	 return err
+ }
+ // get current User from gatorconfig.
+ curUser := s.cfg.CurrentUserName
+ // print all users. Mark the current user
+ for _, userX := range users {
+	 if userX == curUser {
+		 fmt.Println("* "+ userX + " (current)")
+	 } else {
+		 fmt.Println("* " + userX)
+	 }
+ }
+ // return no error
+ return nil 
 }
