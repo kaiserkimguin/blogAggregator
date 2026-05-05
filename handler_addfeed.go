@@ -9,30 +9,34 @@ import(
 	"github.com/kaiserkimguin/blogAggregator/internal/database"
 )
 
-func handlerAddFeed(s *state, cmd command) error{
+func handlerAddFeed(s *state, cmd command, user database.User) error{
 	// check for correct no of args
 	if len (cmd.args) != 2 {
 		return errors.New("two arguments expected")
 	}
-	// get current user to connect to feed
-	curUserName := s.cfg.CurrentUserName
-	curUser, err := s.db.GetUser(context.Background(), curUserName)
-	if err != nil {
-		return err
-	}
-	// Create empty feed to fil in following data.
+		// Create feed with the given data 
 	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
 		ID:					uuid.New(),
 		CreatedAt:	time.Now(),
 		UpdatedAt:	time.Now(),
 		Name: 			cmd.args[0],
 		Url:				cmd.args[1],
-		UserID:			curUser.ID,
+		UserID:			user.ID,
 	})
 	if err != nil {
 		fmt.Println("unable to create feed")
 		return err
 	}
+	// create new feedfollow with constructed feed
+	_, err = s.db.CreateFeedFollow(
+		context.Background(),
+		database.CreateFeedFollowParams{
+			ID: 				uuid.New(),
+			CreatedAt:	time.Now(),
+			UpdatedAt: 	time.Now(),
+			UserID:			user.ID,
+			FeedID: 		feed.ID,
+		})
 	// print the recorded feed to console
 	fmt.Printf("%+v\n", feed)
 	return nil
