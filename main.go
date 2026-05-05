@@ -33,7 +33,8 @@ func main()  {
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
 	cmds.register("agg", handlerAgg)
-	cmds.register("addfeed", handlerAddfeed)
+	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("feeds", handlerFeeds)
 	// detect all arguments provided by the caler and construct
 	// new command struct with it.
 	args := os.Args	
