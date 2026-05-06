@@ -37,6 +37,7 @@ func main()  {
 	cmds.register("feeds", handlerFeeds)
 	cmds.register("follow", middlewareLoggedIn(handlerFollow))
 	cmds.register("following", middlewareLoggedIn(handlerFollowing))
+	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 	// detect all arguments provided by the caler and construct
 	// new command struct with it.
 	args := os.Args	
