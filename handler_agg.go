@@ -1,12 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"errors"
 	"context"
 	"html"
 	"time"
-	//"github.com/kaiserkimguin/blogAggregator/internal/database"
+	"github.com/google/uuid"
+	"github.com/kaiserkimguin/blogAggregator/internal/database"
 )
 
 func handlerAgg(s *state, cmd command) error{
@@ -44,10 +46,33 @@ func scrapeFeeds(s *state) error{
 	RF, err := fetchFeed(context.Background(), markedFeed.Url)
 	if err != nil {
 		return err
-	}	
+	}
+	// save the posts to the posts table
 	fmt.Println(html.UnescapeString(RF.Channel.Title))
-	for index, item := range RF.Channel.Item{
-		fmt.Println(index,": ",html.UnescapeString(item.Title))
+	for _, item := range RF.Channel.Item{
+		// parse the time
+		parsedTime, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			return err // try another time format if this fails
+		}
+		_, err = s.db.CreatePost(context.Background(), database.CreatePostParams{
+			ID:						uuid.New(), CreatedAt:		time.Now(),
+			UpdatedAt:		time.Now(),
+			Title:				item.Title,
+			Url:					item.Link,	
+			Description: 	sql.NullString{
+    		String: item.Description,
+    		Valid:  item.Description != "",
+				},
+			PublishedAt:	sql.NullTime{
+			 Time:  	parsedTime,
+		   Valid:	  err == nil,
+		 		},
+			FeedID:				markedFeed.ID,
+		})
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 } 
